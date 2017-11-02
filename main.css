@@ -6,3 +6,14 @@
 li{
 	cursor: pointer;
 }
+#panorama {
+min-width: 400px;
+width:100%;
+min-height: 500px;
+
+}
+
+      #small_pano {
+        width: 200px;
+        height: 200px;
+      }
