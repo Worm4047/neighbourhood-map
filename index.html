@@ -2,15 +2,12 @@
 <html>
 <head>
 	<title>Udacity Neighbourhood Map</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <style>
-	#map {
-	    min-height: 400px;
-	    height: 100%;
-	    width:100%;
-	}
-
-    </style>
+	<link rel="stylesheet" href="overlay.css">
+	<link rel="stylesheet" href="main.css">
+    <script>
+    </script>
 </head>
 <body>
 	<div class="container">
@@ -18,11 +15,16 @@
 				<div class="col-lg-4 col-md-4 ">
 					<h3>Welcome to Neighbourhood Map</h3>
 					<hr>
-					<div>
-						<input type="text" class="form-control" placeholder="Hogwarts !!">
+					<div class="row">
+						<div class="col-lg-8 col-md-8 col-sm-12">
+							<input type="text" class="form-control" placeholder="Hogwarts !!" id="search-query">
+						</div>
+						<div class="col-lg-4 col-md-4 col-sm-12">
+							<input type="button" class="btn form-control btn-info" value="Go" id="search-query-btn">
+						</div>
 					</div>
 					<hr>
-					<div>
+					<div class="row">
 						<ul id="list-view" class="list-group">
 						
 						</ul>
@@ -31,72 +33,28 @@
 				<div class="col-lg-8 col-md-8" >
 					<div id="map">
 					</div>
+					<div id="myNav" class="overlay">
+					  
+					  <div class="overlay-content">
+					  	<div class="container">
+					  		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+					  		<h2>XYZ AREA</h2>
+					  	</div>
+					  </div>
+					</div>
 				</div>
 		</div>
 	</div>
-	<script>
-      	var map;
-      	var markers= []
-		function initMap() {
-			var locations = {
-			  'Park Ave Penthouse' : {location: {lat: 40.7713024, lng: -73.9632393}},
-			  'Chelsea Loft' :{location: {lat: 40.7444883, lng: -73.9949465}},
-			  'Union Square Open Floor Plan': {location: {lat: 40.7347062, lng: -73.9895759}},
-			  'East Village Hip Studio': {location: {lat: 40.7281777, lng: -73.984377}},
-			  'TriBeCa Artsy Bachelor Pad': {location: {lat: 40.7195264, lng: -74.0089934}},
-			  'Chinatown Homey Space': {location: {lat: 40.7180628, lng: -73.9961237}}
-			};
-			map = new google.maps.Map(document.getElementById('map'), {
-			  center: {lat: 40.7413549, lng: -73.9980244},
-			  zoom: 13,
-			  mapTypeControl: false
-			});
-
-			//Add markers
-			for (lo in locations) {
-	          // Get the position from the location array.
-	          // console.log(lo,locations[lo]);
-	          var position = locations[lo].location;
-	          var title = lo;
-	          // Create a marker per location, and put into markers array.
-	          var marker = new google.maps.Marker({
-	            position: position,
-	            map: map,
-	            title: title,
-	            animation: google.maps.Animation.DROP,
-	          });
-	          // Push the marker to our array of markers.
-	          markers.push(marker);
-	        }
-	        populate_list()
-      	}
-
-      	function populate_list(){
-      		// console.log(markers);
-      		var list = []
-      		for(marker in markers){
-      			list.push(markers[marker].title);
-      		}
-      		// console.log(list);
-      		edit_list_view(list);
-      	}
-
-      	function edit_list_view(list){
-      		var ul = document.getElementById('list-view');
-      		for(item in list){
-	      		var li = document.createElement('li');
-	      		li.classList.add('list-group-item');
-	      		li.innerHTML = 	list[item];
-	      		ul.appendChild(li);
-	      	}
-      	}
-
-    </script>
+	<script src="overlay.js"></script>
 	<script
 	  src="https://code.jquery.com/jquery-3.2.1.min.js"
 	  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
 	  crossorigin="anonymous"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCkN-twOSnUAZl3946gup2diZRnSb_EToc&callback=initMap"
-    async defer></script>
+    <script async defer
+        src=
+        "https://maps.googleapis.com/maps/api/js?key=AIzaSyCkN-twOSnUAZl3946gup2diZRnSb_EToc&libraries=geometry&v=3&callback=initMap">
+    </script>
+    <script src="map.js"></script>
+
 </body>
 </html>
