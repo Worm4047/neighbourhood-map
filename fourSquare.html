@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>FourSquare API Call</title>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+	<script>
+		$(document).ready(function(){
+			console.log('DOM ready !!');
+			var CLIENT_ID= 'APUW500ZFFFLYB41YV1IOBRT0H4KKJGHD2SRBKZAWPXRXK0N';
+			var CLIENT_SECRET= 'O1GMDQV3SSPSRE5XWDMT0NCFKGZCV0AAMY4OWNJ3O3JR5K3T';
+			var SEARCH_ENDPOINT	= 'https://api.foursquare.com/v2/venues/search';
+			console.log(encodeURIComponent("40.7,-74"));
+			var params = {
+				ll: '40.7243,-74.0018',
+				query: 'hospitals',
+				client_id:CLIENT_ID,
+				client_secret: CLIENT_SECRET,
+				v: '20171102'
+			}
+			$.ajax({
+				url: SEARCH_ENDPOINT,
+				type: 'get',
+				data: params,
+				success: function(response){
+					console.log(response);
+				},
+				error: function(error){
+					console.log(error);
+				}
+			});
+		});
+	</script>
+</head>
+<body>
+	<div id="result">
+
+	</div>
+</body>
+</html>

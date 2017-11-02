@@ -11,6 +11,17 @@ function closeNav() {
     document.getElementById("myNav").style.width = "0%";
 }
 
+function makeMarkerIcon(markerColor) {
+	var markerImage = new google.maps.MarkerImage(
+	  'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
+	  '|40|_|%E2%80%A2',
+	  new google.maps.Size(21, 34),
+	  new google.maps.Point(0, 0),
+	  new google.maps.Point(10, 34),
+	  new google.maps.Size(21,34));
+	return markerImage;
+}
+
 function initMap() {
     var locations = {
         'Park Ave Penthouse': {
@@ -59,7 +70,11 @@ function initMap() {
         mapTypeControl: false
     });
     var largeInfowindow = new google.maps.InfoWindow();
+	var defaultIcon = makeMarkerIcon('0091ff');
 
+	// Create a "highlighted location" marker color for when the user
+	// mouses over the marker.
+	var highlightedIcon = makeMarkerIcon('FFFF24');
     //Add markers
     for (lo in locations) {
         // Get the position from the location array.
@@ -72,49 +87,41 @@ function initMap() {
             map: map,
             title: title,
             animation: google.maps.Animation.DROP,
-            id: lo
+            id: lo,
+            icon: defaultIcon,
         });
         // Push the marker to our array of markers.
         marker.addListener('click', function() {
             add_info_window_on_marker(this, largeInfowindow);
         });
+		marker.addListener('mouseover', function() {
+			this.setIcon(highlightedIcon);
+		});
+		marker.addListener('mouseout', function() {
+			this.setIcon(defaultIcon);
+		});
         markers.push(marker);
     }
     populate_list();
     document.getElementById('search-query').addEventListener('keyup', function() {
         search_list_view(largeInfowindow);
     });
-    $('.list-group').on('click', '.list-group-item', function() {
-        var li = $(this)[0].children[0].firstChild.innerText;
+    $('.list-group').on('click', '.place_name', function() {
+    	console.log($(this));
+        var li = $(this)[0].innerText;
         highlight_marker(li, largeInfowindow);
     });
     $('.list-group').on('click', '.view-place-info', function() {
         var row = $(this).parent().parent();
         var clicked_li = row[0].firstChild.innerText;
-        populate_overlay_with_place_info(clicked_li);
+        openNav(clicked_li);
     });
     $('.view_detail').click(function(){
     	console.log('Marker Clicked');
     });
 }
 
-function populate_overlay_with_place_info(place) {
-    console.log(place);
-    var marker = null;
-    for (i in markers) {
-        marker = markers[i];
-        if (marker.title.toLowerCase() === place.toLowerCase()) {
-            break;
-        }
-    }
-    if (marker) {
-        // console.log(marker);
-        var pos = marker.position;
-        var lat = pos.lat();
-        var lng = pos.lng();
-        openNav();
-    }
-}
+
 
 function highlight_marker(clicked_title, infowindow) {
     // console.log('Clicked');
@@ -176,6 +183,7 @@ function add_info_window_on_marker(marker, infowindow) {
 
 function filloverlay(title){
 	var con = document.getElementById('content');
+	con.innerHTML = ''
 	var h2 = document.createElement('h2');
 	var div = document.createElement('div');
 	div.id = "panorama";
@@ -250,7 +258,7 @@ function edit_list_view(list, infowindow) {
     for (item in list) {
         var li = document.createElement('li');
         li.classList.add('list-group-item');
-        li.innerHTML = '<div class="row"><div class="col-lg-8 col-md-8 col-sm-12">' + list[item] + '</div><div class="col-lg-4 col-md-4 col-sm-12"><button class="view-place-info btn btn-info btn-sm pull-left"  >View Details</button></div></div>';
+        li.innerHTML = '<div class="row"><div class="col-lg-8 col-md-8 col-sm-12"><p class="place_name">' + list[item] + '</p></div><div class="col-lg-4 col-md-4 col-sm-12"><button class="view-place-info btn btn-info btn-sm pull-left"  >View Details</button></div></div>';
         ul.appendChild(li);
     }
     if (list.length == 0) {
