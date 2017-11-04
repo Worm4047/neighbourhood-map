@@ -7,13 +7,17 @@ li{
 	cursor: pointer;
 }
 #panorama {
-min-width: 400px;
+min-width: 300px;
 width:100%;
-min-height: 500px;
+min-height: 400px;
 
 }
 
-      #small_pano {
-        width: 200px;
-        height: 200px;
-      }
+#small_pano {
+width: 200px;
+height: 200px;
+}
+
+.margin-top{
+	margin-top:3%;
+}

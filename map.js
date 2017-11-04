@@ -1,5 +1,10 @@
 var map;
 var markers = [];
+var current_marker = null;
+var CLIENT_ID= 'APUW500ZFFFLYB41YV1IOBRT0H4KKJGHD2SRBKZAWPXRXK0N';
+var CLIENT_SECRET= 'O1GMDQV3SSPSRE5XWDMT0NCFKGZCV0AAMY4OWNJ3O3JR5K3T';
+var SEARCH_ENDPOINT = 'https://api.foursquare.com/v2/venues/search';
+
 
 function openNav(title) {
     document.getElementById("myNav").style.width = "100%";
@@ -76,6 +81,7 @@ function initMap() {
 	// mouses over the marker.
 	var highlightedIcon = makeMarkerIcon('FFFF24');
     //Add markers
+    var bounds = new google.maps.LatLngBounds();
     for (lo in locations) {
         // Get the position from the location array.
         // console.log(lo,locations[lo]);
@@ -91,6 +97,8 @@ function initMap() {
             icon: defaultIcon,
         });
         // Push the marker to our array of markers.
+        
+        bounds.extend(marker.position);
         marker.addListener('click', function() {
             add_info_window_on_marker(this, largeInfowindow);
         });
@@ -102,6 +110,7 @@ function initMap() {
 		});
         markers.push(marker);
     }
+    map.fitBounds(bounds);
     populate_list();
     document.getElementById('search-query').addEventListener('keyup', function() {
         search_list_view(largeInfowindow);
@@ -116,6 +125,10 @@ function initMap() {
         var clicked_li = row[0].firstChild.innerText;
         openNav(clicked_li);
     });
+    $('#search-within-time').click(function(){
+        console.log(current_marker);
+        make_venues_query(current_marker);
+    })
     $('.view_detail').click(function(){
     	console.log('Marker Clicked');
     });
@@ -178,11 +191,142 @@ function add_info_window_on_marker(marker, infowindow) {
 		}
 		streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
 		infowindow.open(map, marker);
+
+        //Add points of interest nearby selected point
+
+        make_venues_query(marker);
+
+
+    }
+}
+
+
+
+function make_venues_query(marker){
+
+    var lat = marker.position.lat();
+    var lng = marker.position.lng();
+    var query = document.getElementById('query').value;
+    var params = {
+        ll: `${lat},${lng}`,
+        query: query,
+        client_id:CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        v: '20171102'
+    }
+    $.ajax({
+        url: SEARCH_ENDPOINT,
+        type: 'get',
+        data: params,
+        success: function(response){
+            venues_within_query = find_venues_within_query(response.response.venues, current_marker);
+            add_venues(venues_within_query);
+        },
+        error: function(error){
+            console.log(error);
+        }
+    });
+}
+
+function find_venues_within_query(venues, marker){
+    
+    var distanceMatrixService = new google.maps.DistanceMatrixService;
+    if(marker === null)
+        return;
+    //maximum query limit allowed is foir 25 places only
+    if(venues.length > 25){
+        venues = venues.slice(1, 20);
+    }
+    // console.log(parseFloat(marker.position.lat()),parseFloat(marker.position.lng()));
+    var destination = new google.maps.LatLng(marker.position.lat(),marker.position.lng());
+    var origins = [];
+    for(i in venues){
+        var venue = venues[i];
+        var lat = venue.location.lat;
+        var lng = venue.location.lng;
+        // console.log(lat, lng);
+        origins.push(new google.maps.LatLng(parseFloat(lat),parseFloat(lng)));
+    }
+    // console.log(venues, marker, origins);
+    // console.log(origins, destination);
+    var mode = document.getElementById('mode').value;
+    distanceMatrixService.getDistanceMatrix({
+        origins: origins,
+        destinations: [destination],
+        travelMode: google.maps.TravelMode[mode],
+        unitSystem: google.maps.UnitSystem.IMPERIAL,
+    }, 
+    function(response, status) {
+        // console.log(status, response);
+        if (status !== google.maps.DistanceMatrixStatus.OK) {
+          window.alert('Error was: ' + status);
+        } 
+        else {
+          console.log('Response', response);
+          return find_venues_within_duration(response, venues);
+        }
+    }
+    );
+}
+
+function find_venues_within_duration(response, venues){
+    console.log('Venues', venues);
+    var maxDuration = document.getElementById('max-duration').value;
+    var origins = response.originAddresses;
+    var destinations = response.destinationAddresses;
+    var atLeastOne = false;
+    var query_table_body = document.getElementById('query_table_body');
+    for (var i = 0; i < origins.length; i++) {
+        var venue = venues[i];
+        var results = response.rows[i].elements;
+        for (var j = 0; j < results.length; j++) {
+            var element = results[j];
+            if (element.status === "OK") {
+              var distanceText = element.distance.text;
+              var duration = element.duration.value / 60;
+              var durationText = element.duration.text;
+              if (duration <= maxDuration) {
+                // console.log(element);
+                var tr = document.createElement('tr');
+                var td1 = document.createElement('td');
+                td1.innerHTML = venue.name;
+                var td2 = document.createElement('td');
+                td2.innerHTML = venue.location.address;
+                var td3 = document.createElement('td');
+                td3.innerHTML = venue.contact.formattedPhone;
+                var td4 = document.createElement('td');
+                td4.innerHTML = `<a href="${venue.url}" target="_blank">${venue.url}</a>`;
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                tr.appendChild(td3);
+                tr.appendChild(td4);
+                query_table_body.appendChild(tr);
+                // console.log(venue.name, venue.contact.formattedPhone, venue.location, venue.url);
+                atLeastOne = true;
+              }
+            }
+        }
+    }
+    if (!atLeastOne) {
+      window.alert('We could not find any locations within that distance!');
+    }
+    else{
+        document.getElementById('query-table').display = 'block';
+    }
+}
+
+function add_venues(venues){
+
+    // console.log(venues);
+    for(i in venues){
+        var venue = venues[i];
+
     }
 }
 
 function filloverlay(title){
 	var con = document.getElementById('content');
+    document.getElementById('query_table_body').innerHTML = '';
 	con.innerHTML = ''
 	var h2 = document.createElement('h2');
 	var div = document.createElement('div');
@@ -220,7 +364,7 @@ function filloverlay(title){
 		}
 	}
 	streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
-
+    current_marker = marker;
 }
 
 function set_animation_on_marker(marker) {

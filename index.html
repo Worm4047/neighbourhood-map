@@ -11,39 +11,89 @@
 </head>
 <body>
 	<div class="container">
-		<div class="row">
-				<div class="col-lg-4 col-md-4 ">
-					<h3>Welcome to Neighbourhood Map</h3>
-					<hr>
-					<div class="row">
-						<div class="col-lg-8 col-md-8 col-sm-12">
-							<input type="text" class="form-control" placeholder="Hogwarts !!" id="search-query">
-						</div>
-						<div class="col-lg-4 col-md-4 col-sm-12">
-							<input type="button" class="btn form-control btn-info" value="Go" id="search-query-btn">
-						</div>
+		<div class="row margin-top">
+			<div class="col-lg-4 col-md-4 col-sm-4">
+				<h3>Welcome to Neighbourhood Map</h3>
+				<hr>
+				<div class="row">
+					<div class="col-lg-8 col-md-8 col-sm-12">
+						<input type="text" class="form-control" placeholder="Hogwarts !!" id="search-query">
 					</div>
-					<hr>
-					<div class="row">
-						<ul id="list-view" class="list-group">
-						
-						</ul>
+					<div class="col-lg-4 col-md-4 col-sm-12">
+						<input type="button" class="btn form-control btn-info" value="Go" id="search-query-btn">
 					</div>
 				</div>
-				<div class="col-lg-8 col-md-8" >
-					<div id="map">
-					</div>
-					<div id="myNav" class="overlay">
+				<hr>
+				<div class="row">
+					<ul id="list-view" class="list-group">
+					
+					</ul>
+				</div>
+			</div>
+			<div class="col-lg-8 col-md-8 col-sm-8" >
+				<div id="map">
+				</div>
+				<div id="myNav" class="overlay">
 					  
-					  <div class="overlay-content">
+					 <div class="overlay-content">
 					  	<div class="container">
-					  		<a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-					  		<div id="content">
+					  		
+					  		<div class="row">
+					  			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+							  		<div id="content">
+							  		</div>
+							  	</div>
+						  		<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+						  			<a href="javascript:void(0)" class=" pull-right close-overlay" onclick="closeNav()" >&times;</a>
+						  			<br>
+						  			<h3>Places of interest nearby !!</h3>
+						  			<p>For 50 years, WWF has been protecting the future of nature. The world's leading conservation organization, WWF works in 100 countries and is supported by 1.2 million members in the United States and close to 5 million globally.
+									From WWF's website</p>
+						  			<div class="form-group">
+							  			<select class="form-control" id="query">
+							  				<option value="Hospitals">Hospitals</option>
+							  				<option value="Restaurants">Restaurants</option>
+							  				<option value="Parks">Parks</option>
+							  				<option value="Schools">Schools</option>
+							  			</select>
+						  			</div>	
+						  			<div class="form-group">
+							  			<select class="form-control" id="max-duration">
+							  				<option value="15"> 15 Min</option>
+							  				<option value="30"> 30 Min</option>
+							  				<option value="45"> 45 Min</option>
+							  				<option value="60"> 1 hour</option>
+							  			</select>
+							  		</div>
+							  		<div class="form-group">
+							  			<select class="form-control" id="mode">
+								            <option value="DRIVING">Drive</option>
+								            <option value="WALKING">Walk</option>
+								            <option value="BICYCLING">Bike</option>
+								            <option value="TRANSIT">Transit ride</option>
+							  			</select>
+							  			</div>
+						  			<input id="search-within-time" type="button" value="Go" class="btn btn-info btn-lg">
+						  		</div>
+					  		</div>
+					  		<hr>
+					  		<div class="row" id="query-table" >
+					  			<h1 id="query_head">Search Results</h1>
+					  			<table class="table table-condensed " >
+					  				<thead>
+					  					<th>Name of the venue</th>
+					  					<th>Address</th>
+					  					<th>Contact Number</th>
+					  					<th>Url</th>
+					  				</thead>
+					  				<tbody id="query_table_body">
+					  				</tbody>
+					  			</table>
 					  		</div>
 					  	</div>
-					  </div>
 					</div>
 				</div>
+			</div>
 		</div>
 	</div>
 	<script src="overlay.js"></script>
@@ -56,6 +106,5 @@
         "https://maps.googleapis.com/maps/api/js?key=AIzaSyCkN-twOSnUAZl3946gup2diZRnSb_EToc&libraries=geometry&v=3&callback=initMap">
     </script>
     <script src="map.js"></script>
-
 </body>
 </html>
