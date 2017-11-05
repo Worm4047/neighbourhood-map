@@ -6,27 +6,12 @@ var CLIENT_SECRET= 'O1GMDQV3SSPSRE5XWDMT0NCFKGZCV0AAMY4OWNJ3O3JR5K3T';
 var SEARCH_ENDPOINT = 'https://api.foursquare.com/v2/venues/search';
 
 
-function openNav(title) {
-    document.getElementById("myNav").style.width = "100%";
-    filloverlay(title);
-}
 
-/* Close when someone clicks on the "x" symbol inside the overlay */
-function closeNav() {
-    document.getElementById("myNav").style.width = "0%";
-}
 
-function makeMarkerIcon(markerColor) {
-	var markerImage = new google.maps.MarkerImage(
-	  'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
-	  '|40|_|%E2%80%A2',
-	  new google.maps.Size(21, 34),
-	  new google.maps.Point(0, 0),
-	  new google.maps.Point(10, 34),
-	  new google.maps.Size(21,34));
-	return markerImage;
-}
 
+/*
+Map related functions 
+*/
 function initMap() {
     var locations = {
         'Park Ave Penthouse': {
@@ -111,14 +96,14 @@ function initMap() {
         markers.push(marker);
     }
     map.fitBounds(bounds);
-    populate_list();
+    initial_populate_list();
     document.getElementById('search-query').addEventListener('keyup', function() {
-        search_list_view(largeInfowindow);
+        search_list(largeInfowindow);
     });
     $('.list-group').on('click', '.place_name', function() {
     	console.log($(this));
         var li = $(this)[0].innerText;
-        highlight_marker(li, largeInfowindow);
+        focus_clicked_marker(li, largeInfowindow);
     });
     $('.list-group').on('click', '.view-place-info', function() {
         var row = $(this).parent().parent();
@@ -134,15 +119,31 @@ function initMap() {
     });
 }
 
+function makeMarkerIcon(markerColor) {
+    var markerImage = new google.maps.MarkerImage(
+      'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|'+ markerColor +
+      '|40|_|%E2%80%A2',
+      new google.maps.Size(21, 34),
+      new google.maps.Point(0, 0),
+      new google.maps.Point(10, 34),
+      new google.maps.Size(21,34));
+    return markerImage;
+}
 
+function set_animation_on_marker(marker) {
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+    window.setTimeout(function() {
+        marker.setAnimation(null);
+    }, 750);
+}
 
-function highlight_marker(clicked_title, infowindow) {
+function focus_clicked_marker(clicked_title, infowindow) {
     // console.log('Clicked');
     for (marker in markers) {
         var title = markers[marker].title;
         if (title.toLowerCase() === clicked_title.toLowerCase()) {
             // console.log(markers[marker]);
-            // center_map_on_marker(marker);
+            center_map_on_marker(markers[marker]);
             set_animation_on_marker(markers[marker]);
             add_info_window_on_marker(markers[marker], infowindow);
             break;
@@ -151,8 +152,12 @@ function highlight_marker(clicked_title, infowindow) {
 }
 
 function center_map_on_marker(marker) {
-    map.setCenter(marker.position);
-    map.setZoom(13);
+    // console.log(marker);
+    var latitude = marker.position.lat();
+    var longitude = marker.position.lng();
+    var latlng = new google.maps.LatLng(latitude, longitude);
+    console.log(latlng);
+    map.panTo(latlng);
 }
 
 function add_info_window_on_marker(marker, infowindow) {
@@ -191,16 +196,20 @@ function add_info_window_on_marker(marker, infowindow) {
 		}
 		streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
 		infowindow.open(map, marker);
-
-        //Add points of interest nearby selected point
-
-        make_venues_query(marker);
-
-
     }
 }
 
 
+
+//Overlay related functions
+function openNav(title) {
+    document.getElementById("myNav").style.width = "100%";
+    filloverlay(title);
+}
+
+function closeNav() {
+    document.getElementById("myNav").style.width = "0%";
+}
 
 function make_venues_query(marker){
 
@@ -219,8 +228,7 @@ function make_venues_query(marker){
         type: 'get',
         data: params,
         success: function(response){
-            venues_within_query = find_venues_within_query(response.response.venues, current_marker);
-            add_venues(venues_within_query);
+          find_distance_to_venues(response.response.venues, current_marker);
         },
         error: function(error){
             console.log(error);
@@ -228,7 +236,7 @@ function make_venues_query(marker){
     });
 }
 
-function find_venues_within_query(venues, marker){
+function find_distance_to_venues(venues, marker){
     
     var distanceMatrixService = new google.maps.DistanceMatrixService;
     if(marker === null)
@@ -237,7 +245,6 @@ function find_venues_within_query(venues, marker){
     if(venues.length > 25){
         venues = venues.slice(1, 20);
     }
-    // console.log(parseFloat(marker.position.lat()),parseFloat(marker.position.lng()));
     var destination = new google.maps.LatLng(marker.position.lat(),marker.position.lng());
     var origins = [];
     for(i in venues){
@@ -247,8 +254,6 @@ function find_venues_within_query(venues, marker){
         // console.log(lat, lng);
         origins.push(new google.maps.LatLng(parseFloat(lat),parseFloat(lng)));
     }
-    // console.log(venues, marker, origins);
-    // console.log(origins, destination);
     var mode = document.getElementById('mode').value;
     distanceMatrixService.getDistanceMatrix({
         origins: origins,
@@ -257,20 +262,17 @@ function find_venues_within_query(venues, marker){
         unitSystem: google.maps.UnitSystem.IMPERIAL,
     }, 
     function(response, status) {
-        // console.log(status, response);
         if (status !== google.maps.DistanceMatrixStatus.OK) {
           window.alert('Error was: ' + status);
         } 
         else {
-          console.log('Response', response);
-          return find_venues_within_duration(response, venues);
+          display_venues_within_duration(response, venues);
         }
     }
     );
 }
 
-function find_venues_within_duration(response, venues){
-    console.log('Venues', venues);
+function display_venues_within_duration(response, venues){
     var maxDuration = document.getElementById('max-duration').value;
     var origins = response.originAddresses;
     var destinations = response.destinationAddresses;
@@ -312,15 +314,6 @@ function find_venues_within_duration(response, venues){
     }
     else{
         document.getElementById('query-table').display = 'block';
-    }
-}
-
-function add_venues(venues){
-
-    // console.log(venues);
-    for(i in venues){
-        var venue = venues[i];
-
     }
 }
 
@@ -367,14 +360,19 @@ function filloverlay(title){
     current_marker = marker;
 }
 
-function set_animation_on_marker(marker) {
-    marker.setAnimation(google.maps.Animation.BOUNCE);
-    window.setTimeout(function() {
-        marker.setAnimation(null);
-    }, 750);
+
+//List functions 
+function initial_populate_list() {
+    // console.log(markers);
+    var list = []
+    for (marker in markers) {
+        list.push(markers[marker].title);
+    }
+    // console.log(list);
+    show_searched_list(list);
 }
 
-function search_list_view(infowindow) {
+function search_list(infowindow) {
     var q = document.getElementById('search-query').value.toLowerCase();
     console.log(q);
     var list = [];
@@ -383,20 +381,11 @@ function search_list_view(infowindow) {
         if (title.indexOf(q) !== -1)
             list.push(markers[marker].title);
     }
-    edit_list_view(list, infowindow);
+    show_searched_list(list, infowindow);
+    show_searched_markers(list, infowindow);
 }
 
-function populate_list() {
-    // console.log(markers);
-    var list = []
-    for (marker in markers) {
-        list.push(markers[marker].title);
-    }
-    // console.log(list);
-    edit_list_view(list);
-}
-
-function edit_list_view(list, infowindow) {
+function show_searched_list(list, infowindow) {
     var ul = document.getElementById('list-view');
     ul.innerHTML = '';
     for (item in list) {
@@ -407,11 +396,10 @@ function edit_list_view(list, infowindow) {
     }
     if (list.length == 0) {
         ul.innerHTML = "No area found";
-    }
-    edit_markers_view(list, infowindow);
+    }  
 }
 
-function edit_markers_view(list, infowindow) {
+function show_searched_markers(list, infowindow) {
     for (marker in markers) {
         var title = markers[marker].title;
         if (!list.includes(title)) {
