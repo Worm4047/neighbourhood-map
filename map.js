@@ -295,7 +295,7 @@ function find_venues_within_duration(response, venues){
                 var td3 = document.createElement('td');
                 td3.innerHTML = venue.contact.formattedPhone;
                 var td4 = document.createElement('td');
-                td4.innerHTML = `<a href="${venue.url}" target="_blank">${venue.url}</a>`;
+                td4.innerHTML = `<a href="${venue.url}" target="_blank">Link</a>`;
                 tr.appendChild(td1);
                 tr.appendChild(td2);
                 tr.appendChild(td3);
