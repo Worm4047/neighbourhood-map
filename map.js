@@ -6,8 +6,6 @@ var CLIENT_SECRET = 'O1GMDQV3SSPSRE5XWDMT0NCFKGZCV0AAMY4OWNJ3O3JR5K3T';
 var SEARCH_ENDPOINT = 'https://api.foursquare.com/v2/venues/search';
 
 
-
-
 /*
 Map related functions 
 */
@@ -96,8 +94,6 @@ function initMap() {
         markers.push(marker);
     }
     map.fitBounds(bounds);
-    initial_populate_list();
-
 
     //Various event listeners are added
     document.getElementById('search-query').addEventListener('keyup', function() {

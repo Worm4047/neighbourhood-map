@@ -1,16 +1,18 @@
-//List functions 
+/*
+List functions 
+*/
 
-//Makes a list of marker titles\
+//Makes a list of marker titles
 //Calls show_list
-function initial_populate_list() {
-
+$(document).ready(function(){
     var list = []
     for (marker in markers) {
         list.push(markers[marker].title);
     }
 
     show_list(list);
-}
+})
+
 
 //finds the places names which have user entered string as substring
 //Calls show_list and show_markers
