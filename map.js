@@ -55,8 +55,8 @@ function searched_venue(name, address, url, contact) {
     var self = this;
     if (name)
         self.name = name;
-    if (name)
-        self.address = address;
+    if (address)
+        self.address = "http://maps.google.com/?q="+address;
     else
         self.address = 'Address for the place is not available';
     if (url)
@@ -166,7 +166,6 @@ function AppViewModel() {
         var latitude = marker.position.lat();
         var longitude = marker.position.lng();
         var latlng = new google.maps.LatLng(latitude, longitude);
-        console.log(latlng);
         self.map.panTo(latlng);
     }
     //Adds infowindow on the marker, with streetview panorama
@@ -189,7 +188,7 @@ function AppViewModel() {
                     var nearStreetViewLocation = data.location.latLng;
                     var heading = google.maps.geometry.spherical.computeHeading(
                         nearStreetViewLocation, marker.position);
-                    infowindow.setContent('<div>' + marker.title + `</div><div id="small_pano"></div><a href="javascript:void(0)" class="view_detail" onclick="self.openNav()">View Details</a>`);
+                    infowindow.setContent('<div>' + marker.title + `</div><div id="small_pano"></div>`);
                     var panoramaOptions = {
                         position: nearStreetViewLocation,
                         pov: {
@@ -219,34 +218,35 @@ function AppViewModel() {
 
     //Finds the places names which have user entered string as substring
     //Calls show_markers
-
+    self.places_list_len = ko.computed(function(){
+        return self.marker_list().length == 0;
+    })
     self.filter_list = function() {
         self.place_list.removeAll();
         self.marker_list.removeAll();
-        for (marker in markers) {
-            var title = markers[marker].title.toLowerCase();
+        for (i in markers) {
+            var title = markers[i].title.toLowerCase();
             self.query(document.getElementById('search_query').value);
             if (title.indexOf(self.query()) !== -1) {
-                var name = markers[marker].title;
-                var lat = markers[marker].position.lat();
-                var lng = markers[marker].position.lng();
+                var name = markers[i].title;
+                var lat = markers[i].position.lat();
+                var lng = markers[i].position.lng();
                 self.place_list.push(new ListItem(name, lat, lng));
-                self.marker_list.push(markers[marker]);
+                self.marker_list.push(markers[i]);
             }
         }
         self.show_markers();
     }
     //Shows markers matching user query
     self.show_markers = function() {
-        for (marker in markers) {
-            // console.log(self.marker_list);
-            if (self.marker_list.indexOf(markers[marker]) < 0 && self.marker_list().length !== 0) {
-                markers[marker].setMap(null);
-                if (self.infowindow.marker == markers[marker]) {
+        for (i in markers) {
+            if (self.marker_list().length == 0 || self.marker_list.indexOf(markers[i]) < 0 ) {
+                markers[i].setMap(null);
+                if (self.infowindow.marker == markers[i]) {
                     self.infowindow.close();
                 }
             } else
-                markers[marker].setMap(self.map);
+                markers[i].setMap(self.map);
         }
     }
 
@@ -294,7 +294,7 @@ function AppViewModel() {
                 var panorama = new google.maps.StreetViewPanorama(
                     document.getElementById('panorama'), panoramaOptions);
             } else {
-                window.alert('No Street View Found');
+                document.getElementById('panorama').innerHTML = "<h1>No Street Preview Found</h1>";
             }
         }
         streetViewService.getPanoramaByLocation(position, radius, getStreetView);
@@ -305,8 +305,7 @@ function AppViewModel() {
     //Having places of interest related to the input query.
     //Also calls find_distance_to_venues
     self.make_venues_query = function() {
-        if (!current_place)
-            return;
+
         var lat = current_place.lat;
         var lng = current_place.lng;
         var query = document.getElementById('query').value;
@@ -322,11 +321,31 @@ function AppViewModel() {
             type: 'get',
             data: params,
             success: function(response) {
-                self.find_distance_to_venues(response.response.venues);
+                console.log(response.response.venues);
+                if(response.response.venues.length > 0)
+                    self.find_distance_to_venues(response.response.venues);
+                else
+                    window.alert("No Venue Found");
             },
-            error: function(error) {
-                console.log(error);
-            }
+            error: function (jqXHR, exception) {
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connect.\n Verify Network.';
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]';
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].';
+                } else if (exception === 'parsererror') {
+                    msg = 'Requested JSON parse failed.';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+                window.alert(msg);
+            },
         });
     }
 
@@ -337,8 +356,6 @@ function AppViewModel() {
         if (!current_place)
             return;
         var distanceMatrixService = new google.maps.DistanceMatrixService;
-        if (marker === null)
-            return;
         //maximum query limit allowed is foir 25 places only
         if (venues.length > 25) {
             venues = venues.slice(1, 20);

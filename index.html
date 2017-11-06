@@ -34,6 +34,11 @@
 							</div>
 						</li>
 					</ul>
+					<div data-bind="if: places_list_len">
+						<div class="alert alert-info" >
+						  <strong>Info!</strong> No Such Place Found
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="col-lg-8 col-md-8 col-sm-8" >
@@ -56,8 +61,7 @@
 						  			<a href="javascript:void(0)" class=" pull-right close-overlay" data-bind="click: closeNav" >&times;</a>
 						  			<br>
 						  			<h3>Places of interest nearby !!</h3>
-						  			<p>For 50 years, WWF has been protecting the future of nature. The world's leading conservation organization, WWF works in 100 countries and is supported by 1.2 million members in the United States and close to 5 million globally.
-									From WWF's website</p>
+						  			<p></p>
 						  			<div class="form-group">
 							  			<select class="form-control" id="query">
 							  				<option value="Hospitals">Hospitals</option>
@@ -86,6 +90,8 @@
 						  		</div>
 					  		</div>
 					  		<hr>
+					  		<div class="error">
+					  		</div>
 					  		<div class="row " id="query-table" style="display:none;">
 					  			<h1 id="query_head">Search Results</h1>
 					  			<div class="table-responsive">   
@@ -99,7 +105,7 @@
 						  				<tbody id="query_table_body" data-bind="foreach: searched_venue_list">
 						  					<tr >
 						  						<td data-bind="text: name"></td>
-						  						<td data-bind="text: address"></td>
+						  						<td ><a data-bind="attr: { href: address}">Open In Google Maps</a></td>
 						  						<td data-bind="text: contact"></td>
 						  						<td ><a data-bind="attr: { href: url}, text: url"></a></td>
 						  					</tr>
@@ -120,7 +126,5 @@
     <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCkN-twOSnUAZl3946gup2diZRnSb_EToc&libraries=geometry&v=3&callback=startUp"></script>
 
     <script src="map.js"></script>
-    <script src="list.js"></script>
-    <script src="overlay.js"></script>
 </body>
 </html>
