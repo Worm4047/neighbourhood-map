@@ -1,26 +1,23 @@
 #map {
-    min-height:600px;
+    min-height: 600px;
     height: 100%;
-    width:100%;
+    width: 100%;
 }
-li{
-	cursor: pointer;
+li {
+    cursor: pointer;
 }
 #panorama {
-min-width: 300px;
-width:100%;
-min-height: 400px;
-
+    min-width: 300px;
+    width: 100%;
+    min-height: 400px;
 }
-
 #small_pano {
-width: 400px;
-height: 200px;
+    width: 400px;
+    height: 200px;
 }
-
-.margin-top{
-	margin-top:3%;
+.margin-top {
+    margin-top: 3%;
 }
-td{
-	font-size:18px;
+td {
+    font-size: 18px;
 }

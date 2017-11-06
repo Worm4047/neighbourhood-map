@@ -1,130 +1,126 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title>Udacity Neighbourhood Map</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-	<link rel="stylesheet" href="overlay.css">
-	<link rel="stylesheet" href="main.css">
-    <script>
-    </script>
-</head>
-<body>
-	<div class="container">
-		<div class="row margin-top">
-			<div class="col-lg-4 col-md-4 col-sm-4">
-				<h3>Welcome to Neighbourhood Map</h3>
-				<hr>
-				<div class="row">
-					<div class="col-lg-12 col-md-12 col-sm-12">
-						<input type="text" data-bind="value: query, event: { keyup: filter_list}" class="form-control" placeholder="Hogwarts !!" id="search_query">
-					</div>
-				</div>
-				<hr>
-				<div class="row">
-					<ul id="list-view" class="list-group" data-bind="foreach: place_list">
-						<li class="list-group-item">
-							<div class="row">
-								<div class="col-lg-8 col-md-8 col-sm-12" data-bind="click: $parent.focus_clicked_marker">
-									<p class="place_name" data-bind="text: name"></p>
-								</div>
-								<div class="col-lg-4 col-md-4 col-sm-12">
-									<button class=" btn btn-info btn-sm pull-left" data-bind="click: $parent.openNav" >View Details</button>
-								</div>
-							</div>
-						</li>
-					</ul>
-					<div data-bind="if: places_list_len">
-						<div class="alert alert-info" >
-						  <strong>Info!</strong> No Such Place Found
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="col-lg-8 col-md-8 col-sm-8" >
-				<div id="map">
-				</div>
-				<div id="myNav" class="overlay">
-					  
-					 <div class="overlay-content">
-					  	<div class="container">
-					  		
-					  		<div class="row">
-					  			<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-							  		<div id="content">
-							  			<h2 data-bind="text: overlayTitle"></h2>
-							  			<div id="panorama">
-							  			</div>
-							  		</div>
-							  	</div>
-						  		<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-						  			<a href="javascript:void(0)" class=" pull-right close-overlay" data-bind="click: closeNav" >&times;</a>
-						  			<br>
-						  			<h3>Places of interest nearby !!</h3>
-						  			<p></p>
-						  			<div class="form-group">
-							  			<select class="form-control" id="query">
-							  				<option value="Hospitals">Hospitals</option>
-							  				<option value="Restaurants">Restaurants</option>
-							  				<option value="Parks">Parks</option>
-							  				<option value="Schools">Schools</option>
-							  			</select>
-						  			</div>	
-						  			<div class="form-group">
-							  			<select class="form-control" id="max-duration">
-							  				<option value="15"> 15 Min</option>
-							  				<option value="30"> 30 Min</option>
-							  				<option value="45"> 45 Min</option>
-							  				<option value="60"> 1 hour</option>
-							  			</select>
-							  		</div>
-							  		<div class="form-group">
-							  			<select class="form-control" id="mode">
-								            <option value="DRIVING">Drive</option>
-								            <option value="WALKING">Walk</option>
-								            <option value="BICYCLING">Bike</option>
-								            <option value="TRANSIT">Transit ride</option>
-							  			</select>
-							  			</div>
-						  			<input id="search-within-time" type="button" value="Go" class="btn btn-info btn-lg" data-bind="click: make_venues_query">
-						  		</div>
-					  		</div>
-					  		<hr>
-					  		<div class="error">
-					  		</div>
-					  		<div class="row " id="query-table" style="display:none;">
-					  			<h1 id="query_head">Search Results</h1>
-					  			<div class="table-responsive">   
-						  			<table class="table" >
-						  				<thead >
-						  					<th>Name of the venue</th>
-						  					<th>Address</th>
-						  					<th>Contact Number</th>
-						  					<th>Url</th>
-						  				</thead>
-						  				<tbody id="query_table_body" data-bind="foreach: searched_venue_list">
-						  					<tr >
-						  						<td data-bind="text: name"></td>
-						  						<td ><a data-bind="attr: { href: address}">Open In Google Maps</a></td>
-						  						<td data-bind="text: contact"></td>
-						  						<td ><a data-bind="attr: { href: url}, text: url"></a></td>
-						  					</tr>
-
-						  				</tbody>
-						  			</table>
-						  		</div>
-					  		</div>
-					  	</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	
-	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCkN-twOSnUAZl3946gup2diZRnSb_EToc&libraries=geometry&v=3&callback=startUp"></script>
-
-    <script src="map.js"></script>
-</body>
+   <head>
+      <title>Udacity Neighbourhood Map</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+      <link rel="stylesheet" href="overlay.css">
+      <link rel="stylesheet" href="main.css">
+      <script></script>
+   </head>
+   <body>
+      <div class="container">
+         <div class="row margin-top">
+            <div class="col-lg-4 col-md-4 col-sm-4">
+               <h3>Welcome to Neighbourhood Map</h3>
+               <hr>
+               <div class="row">
+                  <div class="col-lg-12 col-md-12 col-sm-12">
+                     <input type="text" data-bind="value: query, event: { keyup: filter_list}" class="form-control" placeholder="Hogwarts !!" id="search_query">
+                  </div>
+               </div>
+               <hr>
+               <div class="row">
+                  <ul id="list-view" class="list-group" data-bind="foreach: place_list">
+                     <li class="list-group-item">
+                        <div class="row">
+                           <div class="col-lg-8 col-md-8 col-sm-12" data-bind="click: $parent.focus_clicked_marker">
+                              <p class="place_name" data-bind="text: name"></p>
+                           </div>
+                           <div class="col-lg-4 col-md-4 col-sm-12">
+                              <button class=" btn btn-info btn-sm pull-left" data-bind="click: $parent.openNav" >View Details</button>
+                           </div>
+                        </div>
+                     </li>
+                  </ul>
+                  <div data-bind="if: places_list_len">
+                     <div class="alert alert-info" >
+                        <strong>Info!</strong> No Such Place Found
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <div class="col-lg-8 col-md-8 col-sm-8" >
+               <div id="map">
+               </div>
+               <div id="myNav" class="overlay">
+                  <div class="overlay-content">
+                     <div class="container">
+                        <div class="row">
+                           <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                              <div id="content">
+                                 <h2 data-bind="text: overlayTitle"></h2>
+                                 <div id="panorama">
+                                 </div>
+                              </div>
+                           </div>
+                           <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                              <a href="javascript:void(0)" class=" pull-right close-overlay" data-bind="click: closeNav" >&times;</a>
+                              <br>
+                              <h3>Places of interest nearby !!</h3>
+                              <p></p>
+                              <div class="form-group">
+                                 <select class="form-control" id="query">
+                                    <option value="Hospitals">Hospitals</option>
+                                    <option value="Restaurants">Restaurants</option>
+                                    <option value="Parks">Parks</option>
+                                    <option value="Schools">Schools</option>
+                                 </select>
+                              </div>
+                              <div class="form-group">
+                                 <select class="form-control" id="max-duration">
+                                    <option value="15"> 15 Min</option>
+                                    <option value="30"> 30 Min</option>
+                                    <option value="45"> 45 Min</option>
+                                    <option value="60"> 1 hour</option>
+                                 </select>
+                              </div>
+                              <div class="form-group">
+                                 <select class="form-control" id="mode">
+                                    <option value="DRIVING">Drive</option>
+                                    <option value="WALKING">Walk</option>
+                                    <option value="BICYCLING">Bike</option>
+                                    <option value="TRANSIT">Transit ride</option>
+                                 </select>
+                              </div>
+                              <input id="search-within-time" type="button" value="Go" class="btn btn-info btn-lg" data-bind="click: make_venues_query">
+                           </div>
+                        </div>
+                        <hr>
+                        <div class="error">
+                        </div>
+                        <div class="row " id="query-table" style="display:none;">
+                           <h1 id="query_head">Search Results</h1>
+                           <div class="table-responsive">
+                              <table class="table" >
+                                 <thead >
+                                 	<tr>
+	                                    <th>Name of the venue</th>
+	                                    <th>Address</th>
+	                                    <th>Contact Number</th>
+	                                    <th>Url</th>
+	                                </tr>
+                                 </thead>
+                                 <tbody id="query_table_body" data-bind="foreach: searched_venue_list">
+                                    <tr >
+                                       <td data-bind="text: name"></td>
+                                       <td ><a data-bind="attr: { href: address}">Open In Google Maps</a></td>
+                                       <td data-bind="text: contact"></td>
+                                       <td ><a data-bind="attr: { href: url}, text: url"></a></td>
+                                    </tr>
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+      <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCkN-twOSnUAZl3946gup2diZRnSb_EToc&libraries=geometry&v=3&callback=startUp"></script>
+      <script src="map.js" charset="UTF-8"></script>
+   </body>
 </html>

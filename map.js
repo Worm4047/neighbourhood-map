@@ -1,10 +1,10 @@
-var map;
-var markers = [];
-var current_place = null;
-var CLIENT_ID = 'APUW500ZFFFLYB41YV1IOBRT0H4KKJGHD2SRBKZAWPXRXK0N';
-var CLIENT_SECRET = 'O1GMDQV3SSPSRE5XWDMT0NCFKGZCV0AAMY4OWNJ3O3JR5K3T';
-var SEARCH_ENDPOINT = 'https://api.foursquare.com/v2/venues/search';
-var locations = {
+map;
+markers = [];
+current_place = null;
+CLIENT_ID = 'APUW500ZFFFLYB41YV1IOBRT0H4KKJGHD2SRBKZAWPXRXK0N';
+CLIENT_SECRET = 'O1GMDQV3SSPSRE5XWDMT0NCFKGZCV0AAMY4OWNJ3O3JR5K3T';
+SEARCH_ENDPOINT = 'https://api.foursquare.com/v2/venues/search';
+locations = {
     'Park Ave Penthouse': {
         location: {
             lat: 40.7713024,
@@ -56,7 +56,7 @@ function searched_venue(name, address, url, contact) {
     if (name)
         self.name = name;
     if (address)
-        self.address = "http://maps.google.com/?q="+address;
+        self.address = "http://maps.google.com/?q=" + address;
     else
         self.address = 'Address for the place is not available';
     if (url)
@@ -218,7 +218,7 @@ function AppViewModel() {
 
     //Finds the places names which have user entered string as substring
     //Calls show_markers
-    self.places_list_len = ko.computed(function(){
+    self.places_list_len = ko.computed(function() {
         return self.marker_list().length == 0;
     })
     self.filter_list = function() {
@@ -240,7 +240,7 @@ function AppViewModel() {
     //Shows markers matching user query
     self.show_markers = function() {
         for (i in markers) {
-            if (self.marker_list().length == 0 || self.marker_list.indexOf(markers[i]) < 0 ) {
+            if (self.marker_list().length == 0 || self.marker_list.indexOf(markers[i]) < 0) {
                 markers[i].setMap(null);
                 if (self.infowindow.marker == markers[i]) {
                     self.infowindow.close();
@@ -323,12 +323,12 @@ function AppViewModel() {
             data: params,
             success: function(response) {
                 console.log(response.response.venues);
-                if(response.response.venues.length > 0)
+                if (response.response.venues.length > 0)
                     self.find_distance_to_venues(response.response.venues);
                 else
                     window.alert("No Venue Found");
             },
-            error: function (jqXHR, exception) {
+            error: function(jqXHR, exception) {
                 var msg = '';
                 if (jqXHR.status === 0) {
                     msg = 'Not connect.\n Verify Network.';
