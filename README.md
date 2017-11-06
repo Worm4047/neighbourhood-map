@@ -1,6 +1,6 @@
 # Neighbourhood-Map Project
 
-![Home Page](img1.png)
+![Home Page](img.png)
 
 # How To Use
 
