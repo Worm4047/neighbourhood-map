@@ -1,47 +1,53 @@
-map;
-markers = [];
-current_place = null;
-CLIENT_ID = 'APUW500ZFFFLYB41YV1IOBRT0H4KKJGHD2SRBKZAWPXRXK0N';
-CLIENT_SECRET = 'O1GMDQV3SSPSRE5XWDMT0NCFKGZCV0AAMY4OWNJ3O3JR5K3T';
-SEARCH_ENDPOINT = 'https://api.foursquare.com/v2/venues/search';
-locations = {
-    'Park Ave Penthouse': {
+var map = null;
+var markers = [];
+var current_place = null;
+var CLIENT_ID = 'APUW500ZFFFLYB41YV1IOBRT0H4KKJGHD2SRBKZAWPXRXK0N';
+var CLIENT_SECRET = 'O1GMDQV3SSPSRE5XWDMT0NCFKGZCV0AAMY4OWNJ3O3JR5K3T';
+var SEARCH_ENDPOINT = 'https://api.foursquare.com/v2/venues/search';
+var locations = [
+        {           
+        title:'Park Ave Penthouse',
         location: {
             lat: 40.7713024,
             lng: -73.9632393
         }
     },
-    'Chelsea Loft': {
+  {
+     title: 'Chelsea Loft',
         location: {
             lat: 40.7444883,
             lng: -73.9949465
         }
     },
-    'Union Square Open Floor Plan': {
+  {
+     title: 'Union Square Open Floor Plan',
         location: {
             lat: 40.7347062,
             lng: -73.9895759
         }
     },
-    'East Village Hip Studio': {
+  {
+    title: 'East Village Hip Studio',
         location: {
             lat: 40.7281777,
             lng: -73.984377
         }
     },
-    'TriBeCa Artsy Bachelor Pad': {
+  {
+     title:'TriBeCa Artsy Bachelor Pad',
         location: {
             lat: 40.7195264,
             lng: -74.0089934
         }
     },
-    'Chinatown Homey Space': {
+  {
+     title:'Chinatown Homey Space',
         location: {
             lat: 40.7180628,
             lng: -73.9961237
         }
     }
-};
+];
 
 
 function ListItem(name, lat, lng) {
@@ -80,53 +86,8 @@ function AppViewModel() {
         zoom: 12,
         mapTypeControl: false
     });
-    self.infowindow = new google.maps.InfoWindow();
 
-    /*
-        Map related functions 
-    */
-
-    //Initializes the map
-    self.initMap = function() {
-
-        var defaultIcon = self.makeMarkerIcon('0091ff');
-
-        // Create a "highlighted location" marker color for when the user
-        // mouses over the marker.
-        var highlightedIcon = self.makeMarkerIcon('FFFF24');
-        //Add markers
-        var bounds = new google.maps.LatLngBounds();
-        for (lo in locations) {
-            // Get the position from the location array.
-            var position = locations[lo].location;
-            var title = lo;
-            // Create a marker per location, and put into markers array.
-            var marker = new google.maps.Marker({
-                position: position,
-                map: self.map,
-                title: title,
-                animation: google.maps.Animation.DROP,
-                id: lo,
-                icon: defaultIcon,
-            });
-            // Push the marker to our array of markers.
-
-            bounds.extend(marker.position);
-            marker.addListener('click', function() {
-                self.add_info_window_on_marker(this, self.infowindow);
-            });
-            marker.addListener('mouseover', function() {
-                this.setIcon(highlightedIcon);
-            });
-            marker.addListener('mouseout', function() {
-                this.setIcon(defaultIcon);
-            });
-            markers.push(marker);
-        }
-        self.map.fitBounds(bounds);
-
-    }
-    //Styling function - creates a marker of particular color
+        //Styling function - creates a marker of particular color
     self.makeMarkerIcon = function(markerColor) {
         var markerImage = new google.maps.MarkerImage(
             'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' + markerColor +
@@ -136,29 +97,74 @@ function AppViewModel() {
             new google.maps.Point(10, 34),
             new google.maps.Size(21, 34));
         return markerImage;
-    }
+    };
+
+    self.infowindow = new google.maps.InfoWindow();
+    self.defaultIcon = self.makeMarkerIcon('0091ff');
+    self.highlightedIcon = self.makeMarkerIcon('FFFF24');
+    /*
+        Map related functions 
+    */
+    self.marker_func1 = function() {
+                self.add_info_window_on_marker(this, self.infowindow);
+    };
+    self.marker_func2 = function() {
+                this.setIcon(self.highlightedIcon);
+    };
+    self.marker_func3 = function() {
+                this.setIcon(self.defaultIcon);
+    };
+    //Initializes the map
+    self.initMap = function() {
+
+        //Add markers
+        var bounds = new google.maps.LatLngBounds();
+        for (var lo=0;lo<locations.length;lo++) {
+            // Get the position from the location array.
+            var position = locations[lo].location;
+            var title = locations[lo].title;
+            // Create a marker per location, and put into markers array.
+            var marker = new google.maps.Marker({
+                position: position,
+                map: self.map,
+                title: title,
+                animation: google.maps.Animation.DROP,
+                id: lo,
+                icon: self.defaultIcon,
+            });
+            // Push the marker to our array of markers.
+
+            bounds.extend(marker.position);
+            marker.addListener('click', self.marker_func1);
+            marker.addListener('mouseover', self.marker_func2);
+            marker.addListener('mouseout', self.marker_func3);
+            markers.push(marker);
+        }
+        self.map.fitBounds(bounds);
+    };
+
     //Styling function - creates BOUNCE animtion on selected marker
     self.set_animation_on_marker = function(marker) {
         marker.setAnimation(google.maps.Animation.BOUNCE);
         window.setTimeout(function() {
             marker.setAnimation(null);
         }, 750);
-    }
+    };
 
     //Utility function - calls various function, to provide interaction with the marker
     //pan_map_on_marker
     //set_animation on marker
     //add_info_window_on_marker
     self.focus_clicked_marker = function() {
-        for (marker in markers) {
-            if (this.name === markers[marker].title) {
-                self.pan_map_on_marker(markers[marker]);
-                self.set_animation_on_marker(markers[marker]);
-                self.add_info_window_on_marker(markers[marker], self.infowindow);
+        for (var i=0;i<markers.length;i++) {
+            if (this.name === markers[i].title) {
+                self.pan_map_on_marker(markers[i]);
+                self.set_animation_on_marker(markers[i]);
+                self.add_info_window_on_marker(markers[i], self.infowindow);
                 break;
             }
         }
-    }
+    };
 
     //Moves the focus of the map to the clicked marker
     self.pan_map_on_marker = function(marker) {
@@ -167,7 +173,7 @@ function AppViewModel() {
         var longitude = marker.position.lng();
         var latlng = new google.maps.LatLng(latitude, longitude);
         self.map.panTo(latlng);
-    }
+    };
     //Adds infowindow on the marker, with streetview panorama
     self.add_info_window_on_marker = function(marker, infowindow) {
         // Check to make sure the infowindow is not already opened on this marker.
@@ -183,12 +189,12 @@ function AppViewModel() {
             // In case the status is OK, which means the pano was found, compute the
             // position of the streetview image, then calculate the heading, then get a
             // panorama from that and set the options
-            function getStreetView(data, status) {
+           var getStreetView =  function (data, status) {
                 if (status == google.maps.StreetViewStatus.OK) {
                     var nearStreetViewLocation = data.location.latLng;
                     var heading = google.maps.geometry.spherical.computeHeading(
                         nearStreetViewLocation, marker.position);
-                    infowindow.setContent('<div>' + marker.title + `</div><div id="small_pano"></div>`);
+                    infowindow.setContent('<div>' + marker.title + '</div><div id="small_pano"></div>');
                     var panoramaOptions = {
                         position: nearStreetViewLocation,
                         pov: {
@@ -202,11 +208,11 @@ function AppViewModel() {
                     infowindow.setContent('<div>' + marker.title + '</div>' +
                         '<div>No Street View Found</div>');
                 }
-            }
+            };
             streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
             infowindow.open(self.map, marker);
         }
-    }
+    };
 
     /*
         List related functions
@@ -219,12 +225,12 @@ function AppViewModel() {
     //Finds the places names which have user entered string as substring
     //Calls show_markers
     self.places_list_len = ko.computed(function() {
-        return self.marker_list().length == 0;
-    })
+        return self.marker_list().length === 0;
+    });
     self.filter_list = function() {
         self.place_list.removeAll();
         self.marker_list.removeAll();
-        for (i in markers) {
+        for (var i=0;i<markers.length;i++) {
             var title = markers[i].title.toLowerCase();
             self.query(document.getElementById('search_query').value);
             if (title.indexOf(self.query()) !== -1) {
@@ -236,11 +242,11 @@ function AppViewModel() {
             }
         }
         self.show_markers();
-    }
+    };
     //Shows markers matching user query
     self.show_markers = function() {
-        for (i in markers) {
-            if (self.marker_list().length == 0 || self.marker_list.indexOf(markers[i]) < 0) {
+        for (var i=0;i<markers.length;i++) {
+            if (self.marker_list().length === 0 || self.marker_list.indexOf(markers[i]) < 0) {
                 markers[i].setMap(null);
                 if (self.infowindow.marker == markers[i]) {
                     self.infowindow.close();
@@ -248,7 +254,7 @@ function AppViewModel() {
             } else
                 markers[i].setMap(self.map);
         }
-    }
+    };
 
     /*
     Overlay related functions
@@ -260,18 +266,18 @@ function AppViewModel() {
         current_place = this;
         self.filloverlay();
         document.getElementById("myNav").style.width = "100%";
-    }
+    };
 
     //Close overlay window
     self.closeNav = function() {
         $('#query-table').hide();
         document.getElementById("myNav").style.width = "0%";
-    }
+    };
 
     self.overlayTitle = ko.computed(function() {
         if (current_place)
             return current_place.name;
-    })
+    });
     //Fills the overlay with info about the place, like title, street panorama
     self.filloverlay = function() {
         if (!current_place)
@@ -299,7 +305,7 @@ function AppViewModel() {
             }
         }
         streetViewService.getPanoramaByLocation(position, radius, getStreetView);
-    }
+    };
 
     //Make query to FOURSQUARE API
     //Using current_markers position as the basis, it returns JSON object
@@ -311,12 +317,12 @@ function AppViewModel() {
         var lng = current_place.lng;
         var query = document.getElementById('query').value;
         var params = {
-            ll: `${lat},${lng}`,
+            ll: lat+','+lng,
             query: query,
             client_id: CLIENT_ID,
             client_secret: CLIENT_SECRET,
             v: '20171102'
-        }
+        };
         $.ajax({
             url: SEARCH_ENDPOINT,
             type: 'get',
@@ -348,7 +354,7 @@ function AppViewModel() {
                 window.alert(msg);
             },
         });
-    }
+    };
 
     //Uses distancematrixservice and finds duration of travel
     //via the user entered mode of transport
@@ -356,14 +362,14 @@ function AppViewModel() {
     self.find_distance_to_venues = function(venues) {
         if (!current_place)
             return;
-        var distanceMatrixService = new google.maps.DistanceMatrixService;
+        var distanceMatrixService = new google.maps.DistanceMatrixService();
         //maximum query limit allowed is foir 25 places only
         if (venues.length > 25) {
             venues = venues.slice(1, 20);
         }
         var destination = new google.maps.LatLng(current_place.lat, current_place.lng);
         var origins = [];
-        for (i in venues) {
+        for (var i=0;i<venues.length;i++) {
             var venue = venues[i];
             var lat = venue.location.lat;
             var lng = venue.location.lng;
@@ -385,7 +391,7 @@ function AppViewModel() {
                 }
             }
         );
-    }
+    };
 
     //Displays the venues which satisfies the conditions entered by the user
     //Info is displayed in the form of table
@@ -407,7 +413,7 @@ function AppViewModel() {
                     var duration = element.duration.value / 60;
                     var durationText = element.duration.text;
                     if (duration <= maxDuration) {
-                        self.searched_venue_list.push(new searched_venue(venue.name, venue.location.address, venue.url, venue.contact.formattedPhone))
+                        self.searched_venue_list.push(new searched_venue(venue.name, venue.location.address, venue.url, venue.contact.formattedPhone));
                         atLeastOne = true;
                     }
                 }
@@ -418,7 +424,7 @@ function AppViewModel() {
         } else {
             $('#query-table').show();
         }
-    }
+    };
 
 }
 
@@ -427,4 +433,4 @@ function startUp() {
     ko.applyBindings(avm);
     avm.initMap();
     avm.filter_list();
-};
+}
