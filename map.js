@@ -264,6 +264,7 @@ function AppViewModel() {
 
     //Close overlay window
     self.closeNav = function() {
+        $('#query-table').hide();
         document.getElementById("myNav").style.width = "0%";
     }
 
