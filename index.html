@@ -16,15 +16,15 @@
                <hr>
                <div class="row">
                   <div class="col-lg-12 col-md-12 col-sm-12">
-                     <input type="text" data-bind="value: query, event: { keyup: filter_list}" class="form-control" placeholder="Hogwarts !!" id="search_query">
+                     <input type="text" data-bind="textInput: query, event: { keyup: filterList}" class="form-control" placeholder="Hogwarts !!" id="search_query">
                   </div>
                </div>
                <hr>
                <div class="row">
-                  <ul id="list-view" class="list-group" data-bind="foreach: place_list">
+                  <ul id="list-view" class="list-group" data-bind="foreach: placeList">
                      <li class="list-group-item">
                         <div class="row">
-                           <div class="col-lg-8 col-md-8 col-sm-12" data-bind="click: $parent.focus_clicked_marker">
+                           <div class="col-lg-8 col-md-8 col-sm-12" data-bind="click: $parent.focusClickedMarker">
                               <p class="place_name" data-bind="text: name"></p>
                            </div>
                            <div class="col-lg-4 col-md-4 col-sm-12">
@@ -60,7 +60,7 @@
                               <h3>Places of interest nearby !!</h3>
                               <p></p>
                               <div class="form-group">
-                                 <select class="form-control" id="query">
+                                 <select class="form-control" id="query" data-bind="value: selectedVenue">
                                     <option value="Hospitals">Hospitals</option>
                                     <option value="Restaurants">Restaurants</option>
                                     <option value="Parks">Parks</option>
@@ -68,7 +68,7 @@
                                  </select>
                               </div>
                               <div class="form-group">
-                                 <select class="form-control" id="max-duration">
+                                 <select class="form-control" id="max-duration" data-bind="value: selectedDuration">
                                     <option value="15"> 15 Min</option>
                                     <option value="30"> 30 Min</option>
                                     <option value="45"> 45 Min</option>
@@ -76,20 +76,20 @@
                                  </select>
                               </div>
                               <div class="form-group">
-                                 <select class="form-control" id="mode">
+                                 <select class="form-control" id="mode" data-bind="value: selectedMode">
                                     <option value="DRIVING">Drive</option>
                                     <option value="WALKING">Walk</option>
                                     <option value="BICYCLING">Bike</option>
                                     <option value="TRANSIT">Transit ride</option>
                                  </select>
                               </div>
-                              <input id="search-within-time" type="button" value="Go" class="btn btn-info btn-lg" data-bind="click: make_venues_query">
+                              <input id="search-within-time" type="button" value="Go" class="btn btn-info btn-lg" data-bind="click: makeVenuesQuery">
                            </div>
                         </div>
                         <hr>
                         <div class="error">
                         </div>
-                        <div class="row " id="query-table" style="display:none;">
+                        <div class="row " data-bind="visible: showTable">
                            <h1 id="query_head">Search Results</h1>
                            <div class="table-responsive">
                               <table class="table" >
@@ -101,7 +101,7 @@
 	                                    <th>Url</th>
 	                                </tr>
                                  </thead>
-                                 <tbody id="query_table_body" data-bind="foreach: searched_venue_list">
+                                 <tbody id="query_table_body" data-bind="foreach: searchedVenueList">
                                     <tr >
                                        <td data-bind="text: name"></td>
                                        <td ><a data-bind="attr: { href: address}">Open In Google Maps</a></td>
@@ -120,7 +120,7 @@
       </div>
       <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
-      <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCkN-twOSnUAZl3946gup2diZRnSb_EToc&libraries=geometry&v=3&callback=startUp"></script>
       <script src="map.js" charset="UTF-8"></script>
+      <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCkN-twOSnUAZl3946gup2diZRnSb_EToc&libraries=geometry&v=3&callback=startUp" onerror="mapError()"></script>
    </body>
 </html>

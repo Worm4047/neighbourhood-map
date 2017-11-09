@@ -1,47 +1,47 @@
 var map = null;
 var markers = [];
-var current_place = null;
+var currentPlace = null;
 var CLIENT_ID = 'APUW500ZFFFLYB41YV1IOBRT0H4KKJGHD2SRBKZAWPXRXK0N';
 var CLIENT_SECRET = 'O1GMDQV3SSPSRE5XWDMT0NCFKGZCV0AAMY4OWNJ3O3JR5K3T';
-var SEARCH_ENDPOINT = 'https://api.foursquare.com/v2/venues/search';
-var locations = [
-        {           
-        title:'Park Ave Penthouse',
+var FS_SEARCH_ENDPOINT = 'https://api.foursquare.com/v2/venues/search';
+var WIKI_SEARCH_ENDPOINT = 'http://nominatim.openstreetmap.org/reverse';
+var locations = [{
+        title: 'Park Ave Penthouse',
         location: {
             lat: 40.7713024,
             lng: -73.9632393
         }
     },
-  {
-     title: 'Chelsea Loft',
+    {
+        title: 'Chelsea Loft',
         location: {
             lat: 40.7444883,
             lng: -73.9949465
         }
     },
-  {
-     title: 'Union Square Open Floor Plan',
+    {
+        title: 'Union Square Open Floor Plan',
         location: {
             lat: 40.7347062,
             lng: -73.9895759
         }
     },
-  {
-    title: 'East Village Hip Studio',
+    {
+        title: 'East Village Hip Studio',
         location: {
             lat: 40.7281777,
             lng: -73.984377
         }
     },
-  {
-     title:'TriBeCa Artsy Bachelor Pad',
+    {
+        title: 'TriBeCa Artsy Bachelor Pad',
         location: {
             lat: 40.7195264,
             lng: -74.0089934
         }
     },
-  {
-     title:'Chinatown Homey Space',
+    {
+        title: 'Chinatown Homey Space',
         location: {
             lat: 40.7180628,
             lng: -73.9961237
@@ -57,7 +57,7 @@ function ListItem(name, lat, lng) {
     self.lng = lng;
 }
 
-function searched_venue(name, address, url, contact) {
+function searchedVenue(name, address, url, contact) {
     var self = this;
     if (name)
         self.name = name;
@@ -87,7 +87,7 @@ function AppViewModel() {
         mapTypeControl: false
     });
 
-        //Styling function - creates a marker of particular color
+    //Styling function - creates a marker of particular color
     self.makeMarkerIcon = function(markerColor) {
         var markerImage = new google.maps.MarkerImage(
             'http://chart.googleapis.com/chart?chst=d_map_spin&chld=1.15|0|' + markerColor +
@@ -105,21 +105,23 @@ function AppViewModel() {
     /*
         Map related functions 
     */
-    self.marker_func1 = function() {
-                self.add_info_window_on_marker(this, self.infowindow);
+    self.markerFunc1 = function() {
+        self.addInfoWindowOnMarker(this, self.infowindow);
+        self.setAnimationOnMarker(this);
     };
-    self.marker_func2 = function() {
-                this.setIcon(self.highlightedIcon);
+    self.markerFunc2 = function() {
+        this.setIcon(self.highlightedIcon);
     };
-    self.marker_func3 = function() {
-                this.setIcon(self.defaultIcon);
+    self.markerFunc3 = function() {
+        this.setIcon(self.defaultIcon);
     };
+
     //Initializes the map
     self.initMap = function() {
 
         //Add markers
         var bounds = new google.maps.LatLngBounds();
-        for (var lo=0;lo<locations.length;lo++) {
+        for (var lo = 0; lo < locations.length; lo++) {
             // Get the position from the location array.
             var position = locations[lo].location;
             var title = locations[lo].title;
@@ -135,39 +137,39 @@ function AppViewModel() {
             // Push the marker to our array of markers.
 
             bounds.extend(marker.position);
-            marker.addListener('click', self.marker_func1);
-            marker.addListener('mouseover', self.marker_func2);
-            marker.addListener('mouseout', self.marker_func3);
+            marker.addListener('click', self.markerFunc1);
+            marker.addListener('mouseover', self.markerFunc2);
+            marker.addListener('mouseout', self.markerFunc3);
             markers.push(marker);
         }
         self.map.fitBounds(bounds);
     };
 
     //Styling function - creates BOUNCE animtion on selected marker
-    self.set_animation_on_marker = function(marker) {
+    self.setAnimationOnMarker = function(marker) {
         marker.setAnimation(google.maps.Animation.BOUNCE);
         window.setTimeout(function() {
             marker.setAnimation(null);
-        }, 750);
+        }, 2000);
     };
 
     //Utility function - calls various function, to provide interaction with the marker
-    //pan_map_on_marker
+    //panMapOnMarker
     //set_animation on marker
-    //add_info_window_on_marker
-    self.focus_clicked_marker = function() {
-        for (var i=0;i<markers.length;i++) {
+    //addInfoWindowOnMarker
+    self.focusClickedMarker = function() {
+        for (var i = 0; i < markers.length; i++) {
             if (this.name === markers[i].title) {
-                self.pan_map_on_marker(markers[i]);
-                self.set_animation_on_marker(markers[i]);
-                self.add_info_window_on_marker(markers[i], self.infowindow);
+                self.panMapOnMarker(markers[i]);
+                self.setAnimationOnMarker(markers[i]);
+                self.addInfoWindowOnMarker(markers[i], self.infowindow);
                 break;
             }
         }
     };
 
     //Moves the focus of the map to the clicked marker
-    self.pan_map_on_marker = function(marker) {
+    self.panMapOnMarker = function(marker) {
         // console.log(marker);
         var latitude = marker.position.lat();
         var longitude = marker.position.lng();
@@ -175,7 +177,8 @@ function AppViewModel() {
         self.map.panTo(latlng);
     };
     //Adds infowindow on the marker, with streetview panorama
-    self.add_info_window_on_marker = function(marker, infowindow) {
+    self.placeTitle = ko.observable('');
+    self.addInfoWindowOnMarker = function(marker, infowindow) {
         // Check to make sure the infowindow is not already opened on this marker.
         if (infowindow.marker != marker) {
             // Clear the infowindow content to give the streetview time to load.
@@ -186,15 +189,17 @@ function AppViewModel() {
             });
             var streetViewService = new google.maps.StreetViewService();
             var radius = 50;
+            var address = '';
+            var list = '';
             // In case the status is OK, which means the pano was found, compute the
             // position of the streetview image, then calculate the heading, then get a
             // panorama from that and set the options
-           var getStreetView =  function (data, status) {
+            var getStreetView = function(data, status) {
                 if (status == google.maps.StreetViewStatus.OK) {
                     var nearStreetViewLocation = data.location.latLng;
                     var heading = google.maps.geometry.spherical.computeHeading(
                         nearStreetViewLocation, marker.position);
-                    infowindow.setContent('<div>' + marker.title + '</div><div id="small_pano"></div>');
+                    infowindow.setContent('<h2 >' + marker.title + '</h2><div id="small_pano"></div><h3>Place Info</h3>' + list);
                     var panoramaOptions = {
                         position: nearStreetViewLocation,
                         pov: {
@@ -209,8 +214,28 @@ function AppViewModel() {
                         '<div>No Street View Found</div>');
                 }
             };
-            streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
-            infowindow.open(self.map, marker);
+
+            var params = {
+                lat: marker.position.lat(),
+                lon: marker.position.lng(),
+                format: 'json',
+                addressdetails: '1',
+
+            };
+            $.ajax({
+                url: WIKI_SEARCH_ENDPOINT,
+                data: params,
+                success: function(response) {
+                    console.log(response);
+                    self.placeTitle(response.display_name);
+                    address = response.address;
+                    list = '<ul class="list-group"><li class="list-group-item"><b>Road</b> : ' + address.road + '</li><li class="list-group-item"><b>Postal Code </b>: ' + address.postcode + '</li><li class="list-group-item"><b>County</b> : ' + address.county + '</li></ul>';
+                    streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+                    infowindow.open(self.map, marker);
+                },
+                error: errorHandler
+            });
+
         }
     };
 
@@ -218,35 +243,34 @@ function AppViewModel() {
         List related functions
     */
 
-    self.place_list = ko.observableArray([]);
-    self.marker_list = ko.observableArray([]);
+    self.placeList = ko.observableArray([]);
+    self.markerList = ko.observableArray([]);
     self.query = ko.observable('');
 
     //Finds the places names which have user entered string as substring
-    //Calls show_markers
+    //Calls showMarkers
     self.places_list_len = ko.computed(function() {
-        return self.marker_list().length === 0;
+        return self.markerList().length === 0;
     });
-    self.filter_list = function() {
-        self.place_list.removeAll();
-        self.marker_list.removeAll();
-        for (var i=0;i<markers.length;i++) {
+    self.filterList = function() {
+        self.placeList.removeAll();
+        self.markerList.removeAll();
+        for (var i = 0; i < markers.length; i++) {
             var title = markers[i].title.toLowerCase();
-            self.query(document.getElementById('search_query').value);
             if (title.indexOf(self.query()) !== -1) {
                 var name = markers[i].title;
                 var lat = markers[i].position.lat();
                 var lng = markers[i].position.lng();
-                self.place_list.push(new ListItem(name, lat, lng));
-                self.marker_list.push(markers[i]);
+                self.placeList.push(new ListItem(name, lat, lng));
+                self.markerList.push(markers[i]);
             }
         }
-        self.show_markers();
+        self.showMarkers();
     };
     //Shows markers matching user query
-    self.show_markers = function() {
-        for (var i=0;i<markers.length;i++) {
-            if (self.marker_list().length === 0 || self.marker_list.indexOf(markers[i]) < 0) {
+    self.showMarkers = function() {
+        for (var i = 0; i < markers.length; i++) {
+            if (self.markerList().length === 0 || self.markerList.indexOf(markers[i]) < 0) {
                 markers[i].setMap(null);
                 if (self.infowindow.marker == markers[i]) {
                     self.infowindow.close();
@@ -262,9 +286,9 @@ function AppViewModel() {
 
     //Opens the overlay window
     //Also calls fill overlay function
-    self.openNav = function(title) {
-        current_place = this;
-        self.filloverlay();
+    self.openNav = function() {
+        currentPlace = this;
+        self.fillOverlay();
         document.getElementById("myNav").style.width = "100%";
     };
 
@@ -275,14 +299,14 @@ function AppViewModel() {
     };
 
     self.overlayTitle = ko.computed(function() {
-        if (current_place)
-            return current_place.name;
+        if (currentPlace)
+            return currentPlace.name;
     });
     //Fills the overlay with info about the place, like title, street panorama
-    self.filloverlay = function() {
-        if (!current_place)
+    self.fillOverlay = function() {
+        if (!currentPlace)
             return;
-        var position = new google.maps.LatLng(current_place.lat, current_place.lng);
+        var position = new google.maps.LatLng(currentPlace.lat, currentPlace.lng);
         var streetViewService = new google.maps.StreetViewService();
         var radius = 50;
 
@@ -310,73 +334,65 @@ function AppViewModel() {
     //Make query to FOURSQUARE API
     //Using current_markers position as the basis, it returns JSON object
     //Having places of interest related to the input query.
-    //Also calls find_distance_to_venues
-    self.make_venues_query = function() {
+    //Also calls findDistanceToVenues
+    self.selectedVenue = ko.observable();
+    self.selectedDuration = ko.observable();
+    self.selectedMode = ko.observable();
+    self.makeVenuesQuery = function() {
 
-        var lat = current_place.lat;
-        var lng = current_place.lng;
-        var query = document.getElementById('query').value;
+        var lat = currentPlace.lat;
+        var lng = currentPlace.lng;
+        var query = self.selectedVenue();
+
         var params = {
-            ll: lat+','+lng,
+            ll: lat + ',' + lng,
             query: query,
             client_id: CLIENT_ID,
             client_secret: CLIENT_SECRET,
             v: '20171102'
         };
-        $.ajax({
-            url: SEARCH_ENDPOINT,
+        var promise = self.makeQuery(params);
+        console.log(promise);
+        promise.then(function(response) {
+            if (response.response.venues.length > 0)
+                self.findDistanceToVenues(response.response.venues);
+            else
+                window.alert("No Venue Found");
+        }).catch(errorHandler);
+
+    };
+    self.makeQuery = function(params) {
+        return $.ajax({
+            url: FS_SEARCH_ENDPOINT,
             type: 'get',
             data: params,
             success: function(response) {
-                console.log(response.response.venues);
-                if (response.response.venues.length > 0)
-                    self.find_distance_to_venues(response.response.venues);
-                else
-                    window.alert("No Venue Found");
+                return response;
             },
-            error: function(jqXHR, exception) {
-                var msg = '';
-                if (jqXHR.status === 0) {
-                    msg = 'Not connect.\n Verify Network.';
-                } else if (jqXHR.status == 404) {
-                    msg = 'Requested page not found. [404]';
-                } else if (jqXHR.status == 500) {
-                    msg = 'Internal Server Error [500].';
-                } else if (exception === 'parsererror') {
-                    msg = 'Requested JSON parse failed.';
-                } else if (exception === 'timeout') {
-                    msg = 'Time out error.';
-                } else if (exception === 'abort') {
-                    msg = 'Ajax request aborted.';
-                } else {
-                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
-                }
-                window.alert(msg);
-            },
+            error: errorHandler,
         });
     };
-
     //Uses distancematrixservice and finds duration of travel
     //via the user entered mode of transport
-    //then calls display_venues_within_duration
-    self.find_distance_to_venues = function(venues) {
-        if (!current_place)
+    //then calls displayVenuesWithinDuration
+    self.findDistanceToVenues = function(venues) {
+        if (!currentPlace)
             return;
         var distanceMatrixService = new google.maps.DistanceMatrixService();
         //maximum query limit allowed is foir 25 places only
         if (venues.length > 25) {
             venues = venues.slice(1, 20);
         }
-        var destination = new google.maps.LatLng(current_place.lat, current_place.lng);
+        var destination = new google.maps.LatLng(currentPlace.lat, currentPlace.lng);
         var origins = [];
-        for (var i=0;i<venues.length;i++) {
+        for (var i = 0; i < venues.length; i++) {
             var venue = venues[i];
             var lat = venue.location.lat;
             var lng = venue.location.lng;
             // console.log(lat, lng);
             origins.push(new google.maps.LatLng(parseFloat(lat), parseFloat(lng)));
         }
-        var mode = document.getElementById('mode').value;
+        var mode = self.selectedMode();
         distanceMatrixService.getDistanceMatrix({
                 origins: origins,
                 destinations: [destination],
@@ -387,7 +403,7 @@ function AppViewModel() {
                 if (status !== google.maps.DistanceMatrixStatus.OK) {
                     window.alert('Error was: ' + status);
                 } else {
-                    self.display_venues_within_duration(response, venues);
+                    self.displayVenuesWithinDuration(response, venues);
                 }
             }
         );
@@ -395,14 +411,15 @@ function AppViewModel() {
 
     //Displays the venues which satisfies the conditions entered by the user
     //Info is displayed in the form of table
-    self.searched_venue_list = ko.observableArray([]);
-    self.display_venues_within_duration = function(response, venues) {
-        var maxDuration = document.getElementById('max-duration').value;
+    self.searchedVenueList = ko.observableArray([]);
+    self.showTable = ko.observable(false);
+    self.displayVenuesWithinDuration = function(response, venues) {
+        var maxDuration = self.selectedDuration();
         var origins = response.originAddresses;
         var destinations = response.destinationAddresses;
         var atLeastOne = false;
         var query_table_body = document.getElementById('query_table_body');
-        self.searched_venue_list.removeAll();
+        self.searchedVenueList.removeAll();
         for (var i = 0; i < origins.length; i++) {
             var venue = venues[i];
             var results = response.rows[i].elements;
@@ -413,7 +430,7 @@ function AppViewModel() {
                     var duration = element.duration.value / 60;
                     var durationText = element.duration.text;
                     if (duration <= maxDuration) {
-                        self.searched_venue_list.push(new searched_venue(venue.name, venue.location.address, venue.url, venue.contact.formattedPhone));
+                        self.searchedVenueList.push(new searchedVenue(venue.name, venue.location.address, venue.url, venue.contact.formattedPhone));
                         atLeastOne = true;
                     }
                 }
@@ -422,7 +439,7 @@ function AppViewModel() {
         if (!atLeastOne) {
             window.alert('We could not find any locations within that distance!');
         } else {
-            $('#query-table').show();
+            self.showTable(true);
         }
     };
 
@@ -432,5 +449,29 @@ function startUp() {
     var avm = new AppViewModel();
     ko.applyBindings(avm);
     avm.initMap();
-    avm.filter_list();
+    avm.filterList();
+}
+
+function mapError() {
+    window.alert('Google Maps Api Failed to load !!');
+}
+
+function errorHandler(jqXHR, exception) {
+    var msg = '';
+    if (jqXHR.status === 0) {
+        msg = 'Not connect.\n Verify Network.';
+    } else if (jqXHR.status == 404) {
+        msg = 'Requested page not found. [404]';
+    } else if (jqXHR.status == 500) {
+        msg = 'Internal Server Error [500].';
+    } else if (exception === 'parsererror') {
+        msg = 'Requested JSON parse failed.';
+    } else if (exception === 'timeout') {
+        msg = 'Time out error.';
+    } else if (exception === 'abort') {
+        msg = 'Ajax request aborted.';
+    } else {
+        msg = 'Uncaught Error.\n' + jqXHR.responseText;
+    }
+    window.alert(msg);
 }
