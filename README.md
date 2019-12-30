@@ -9,6 +9,8 @@
 3. To filter the locations, type in the search box.
 4. To view details about any location, click on the view details button.
 
+# Live preview
+https://worm4047.github.io/neighbourhood-map/
 
 Future Improvements
 
